@@ -8,6 +8,8 @@ from import_covertype_data import get_data
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import RobustScaler
+import time
+
 
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -39,6 +41,7 @@ scaler = RobustScaler()
 df_robust_scaled = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
 
 scale_method_names = [
+    'no_scaling'
     'absolue maximum scaling',
     'min max scaling',
     'normalization',
@@ -47,6 +50,7 @@ scale_method_names = [
 ]
 
 scaled_data = [
+    df,
     df_abs_max_scaled,
     df_min_max_scaled,
     df_normalized,
@@ -66,17 +70,69 @@ for name, scaled_data in zip(scale_method_names, scaled_data):
     
     clf = KNeighborsClassifier(3)
     
+    start_time = time.time()
+    
     clf.fit(X_train, y_train)
+    
+    end_time = time.time()
+    elapsed_time = end_time - start_time
     
     y_pred = clf.predict(X_test)
     
     acc = accuracy_score(y_test, y_pred)
     
-    print(f'{name}, acc: {acc:.2f}')
+    
+    print(f'{name}, acc: {acc:.2f}, elapsed time:{elapsed_time:.2f} seconds')
     
     acc_dict[name] = acc
     
 
+def get_scaled_data():
+    '''
+    return: list of scaled data, list of scaled data
+    '''
+    df = get_data("train_dataset.csv")
+
+    # absolue maximum scaling
+    df_abs_max_scaled = df.copy()
+    for column in df.columns:
+        df_abs_max_scaled[column] = df[column] / df[column].abs().max()
 
 
+    # min max scaling
+    scaler = MinMaxScaler()
+    df_min_max_scaled = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
+
+    # normalization
+    df_normalized = df.copy()
+    for column in df.columns:
+        df_normalized[column] = (df[column] - df[column].min()) / (df[column].max() - df[column].min())
+
+    # Standardization
+    scaler = StandardScaler()
+    df_standardized = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
+
+
+    # Robust Scaling
+    scaler = RobustScaler()
+    df_robust_scaled = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
+
+    scale_method_names = [
+        'no_scaling'
+        'absolue maximum scaling',
+        'min max scaling',
+        'normalization',
+        'Standardization',
+        'Robust Scaling'
+    ]
+
+    scaled_data = [
+        df,
+        df_abs_max_scaled,
+        df_min_max_scaled,
+        df_normalized,
+        df_standardized,
+        df_robust_scaled
+    ]
+    return scale_method_names, scaled_data
 
