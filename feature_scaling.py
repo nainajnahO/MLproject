@@ -16,46 +16,50 @@ from sklearn.neighbors import KNeighborsClassifier
 
 df = get_data("train_dataset.csv")
 
+classes = df['Forest Cover Type Classes']
+
 # absolue maximum scaling
 df_abs_max_scaled = df.copy()
 for column in df.columns:
     df_abs_max_scaled[column] = df[column] / df[column].abs().max()
-
+    df_abs_max_scaled['Forest Cover Type Classes'] = classes
 
 # min max scaling
 scaler = MinMaxScaler()
 df_min_max_scaled = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
+df_min_max_scaled['Forest Cover Type Classes'] = classes
 
 # normalization
 df_normalized = df.copy()
 for column in df.columns:
     df_normalized[column] = (df[column] - df[column].min()) / (df[column].max() - df[column].min())
-
+    df_normalized['Forest Cover Type Classes'] = classes
 # Standardization
 scaler = StandardScaler()
 df_standardized = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
-
+df_standardized['Forest Cover Type Classes'] = classes
 
 # Robust Scaling
 scaler = RobustScaler()
 df_robust_scaled = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
+df_robust_scaled['Forest Cover Type Classes'] = classes
 
 scale_method_names = [
-    'no_scaling'
     'absolue maximum scaling',
     'min max scaling',
     'normalization',
     'Standardization',
-    'Robust Scaling'
+    'Robust Scaling',
+    'no_scaling'
 ]
 
 scaled_data = [
-    df,
     df_abs_max_scaled,
     df_min_max_scaled,
     df_normalized,
     df_standardized,
-    df_robust_scaled
+    df_robust_scaled,
+    df
 ]
 
 acc_dict = {}
